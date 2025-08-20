@@ -1,0 +1,140 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    Start:
+      type: "start"
+      transitions:
+        unconditional:
+        - "Create Table"
+      parameters:
+        componentName: "Start"
+    Create Table:
+      type: "create-table-v2"
+      transitions:
+        success:
+        - "S3 Load"
+      parameters:
+        componentName: "Create Table"
+        createMethod: "Create If Not Exists"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        table: "order"
+        snowflakeTableType: "Permanent"
+        columns:
+        - - "order_id"
+          - "NUMBER"
+          - "30"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "account_id"
+          - "NUMBER"
+          - "30"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "Bank_to"
+          - "VARCHAR"
+          - "45"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "account_to"
+          - "NUMBER"
+          - "35"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "amount"
+          - "FLOAT"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        defaultDdlCollation:
+        primaryKeys:
+        clusteringKeys:
+        dataRetentionTimeInDays:
+        comment:
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    S3 Load:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://analyticswithsagar/order/order.csv"
+        pattern: ".*"
+        encryption: "S3 Encryption"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "order"
+        loadColumns:
+        - "order_id"
+        - "account_id"
+        - "Bank_to"
+        - "Account_to"
+        - "Amount"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "AUTO"
+        recordDelimiter:
+        fieldDelimiter: ""
+        skipHeader: ""
+        skipBlankLines: "True"
+        dateFormat:
+        timeFormat:
+        timestampFormat:
+        escape:
+        escapeUnenclosedField:
+        trimSpace: "True"
+        fieldOptionallyEnclosed:
+        nullIf:
+        errorOnColumnCountMismatch: "True"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "True"
+        encodingType:
+        onError: "Continue"
+        sizeLimitB:
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "True"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+design:
+  components:
+    Start:
+      position:
+        x: -230
+        "y": -10
+      tempMetlId: 1
+    Create Table:
+      position:
+        x: -70
+        "y": -10
+      tempMetlId: 2
+    S3 Load:
+      position:
+        x: 90
+        "y": -10
+      tempMetlId: 3
