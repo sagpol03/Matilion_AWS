@@ -7,6 +7,7 @@ pipeline:
       transitions:
         unconditional:
         - "Create Table"
+        - "Create Table 2"
       parameters:
         componentName: "Start"
     Create Table:
@@ -121,6 +122,138 @@ pipeline:
       postProcessing:
         updateOutputMessage:
         updateScalarVariables:
+    Create Table 2:
+      type: "create-table-v2"
+      transitions:
+        success:
+        - "S3 Load 2"
+      parameters:
+        componentName: "Create Table 2"
+        createMethod: "Create If Not Exists"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        table: "loan"
+        snowflakeTableType: "Permanent"
+        columns:
+        - - "loan_id"
+          - "NUMBER"
+          - "10"
+          - ""
+          - ""
+          - "No"
+          - "Yes"
+          - ""
+          - ""
+        - - "account_id"
+          - "NUMBER"
+          - "10"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "Date"
+          - "DATE"
+          - ""
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "amount"
+          - "NUMBER"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "duration"
+          - "NUMBER"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "payments"
+          - "NUMBER"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "status"
+          - "VARCHAR"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        defaultDdlCollation:
+        primaryKeys:
+        clusteringKeys:
+        dataRetentionTimeInDays:
+        comment:
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    S3 Load 2:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load 2"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://analyticswithsagar/loan/loan.csv"
+        pattern: ".*"
+        encryption: "S3 Encryption"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "loan"
+        loadColumns:
+        - "loan_id"
+        - "account_id"
+        - "Date"
+        - "amount"
+        - "duration"
+        - "payments"
+        - "status"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "AUTO"
+        recordDelimiter:
+        fieldDelimiter: ","
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat:
+        timeFormat:
+        timestampFormat:
+        escape:
+        escapeUnenclosedField:
+        trimSpace: "True"
+        fieldOptionallyEnclosed:
+        nullIf:
+        errorOnColumnCountMismatch: "True"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "True"
+        encodingType:
+        onError: "Continue"
+        sizeLimitB:
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "True"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
 design:
   components:
     Start:
@@ -138,3 +271,13 @@ design:
         x: 90
         "y": -10
       tempMetlId: 3
+    Create Table 2:
+      position:
+        x: -80
+        "y": 130
+      tempMetlId: 4
+    S3 Load 2:
+      position:
+        x: 80
+        "y": 130
+      tempMetlId: 5
