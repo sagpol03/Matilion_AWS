@@ -8,6 +8,8 @@ pipeline:
         unconditional:
         - "Create Table"
         - "Create Table 2"
+        - "Create Table 2 2"
+        - "SQL Script"
       parameters:
         componentName: "Start"
     Create Table:
@@ -254,12 +256,125 @@ pipeline:
       postProcessing:
         updateOutputMessage:
         updateScalarVariables:
+    Create Table 2 2:
+      type: "create-table-v2"
+      transitions:
+        success:
+        - "S3 Load 3"
+      parameters:
+        componentName: "Create Table 2 2"
+        createMethod: "Create If Not Exists"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        table: "client"
+        snowflakeTableType: "Permanent"
+        columns:
+        - - "client_id"
+          - "NUMBER"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "Yes"
+          - ""
+          - ""
+        - - "Sex"
+          - "VARCHAR"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "Birth_date"
+          - "DATE"
+          - ""
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        - - "district_id INT"
+          - "NUMBER"
+          - "20"
+          - ""
+          - ""
+          - "No"
+          - "No"
+          - ""
+          - ""
+        defaultDdlCollation:
+        primaryKeys:
+        clusteringKeys:
+        dataRetentionTimeInDays:
+        comment:
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    S3 Load 3:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load 3"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://analyticswithsagar/client/client.csv"
+        pattern: ".*"
+        encryption: "S3 Encryption"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "client"
+        loadColumns:
+        - "client_id"
+        - "Sex"
+        - "Birth_date"
+        - "district_id INT"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "AUTO"
+        recordDelimiter:
+        fieldDelimiter:
+        skipHeader:
+        skipBlankLines: "True"
+        dateFormat:
+        timeFormat:
+        timestampFormat:
+        escape:
+        escapeUnenclosedField:
+        trimSpace: "True"
+        fieldOptionallyEnclosed:
+        nullIf:
+        errorOnColumnCountMismatch: "True"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType:
+        onError: "Continue"
+        sizeLimitB:
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "True"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
+    SQL Script:
+      type: "sql-executor"
+      parameters:
+        componentName: "SQL Script"
+        scriptLocation: "Component"
+        declareSqlVariables: "Include selected"
+        variablesToInclude:
+        sqlScript: "DELETE FROM DEMODATABASE.DEMOSCHEMA.client WHERE Sex = 'Male'"
+      postProcessing:
+        updateOutputMessage:
+        updateScalarVariables:
 design:
   components:
     Start:
       position:
-        x: -230
-        "y": -10
+        x: -470
+        "y": 60
       tempMetlId: 1
     Create Table:
       position:
@@ -281,3 +396,18 @@ design:
         x: 80
         "y": 130
       tempMetlId: 5
+    Create Table 2 2:
+      position:
+        x: -150
+        "y": 260
+      tempMetlId: 6
+    S3 Load 3:
+      position:
+        x: 10
+        "y": 260
+      tempMetlId: 7
+    SQL Script:
+      position:
+        x: -440
+        "y": 220
+      tempMetlId: 8

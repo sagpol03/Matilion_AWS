@@ -1,0 +1,78 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    order:
+      type: "table-input"
+      parameters:
+        componentName: "order"
+        database: "[Environment Default]"
+        schema: "[Environment Default]"
+        targetTable: "loan"
+        columnNames:
+        - "loan_id"
+        - "account_id"
+        - "Date"
+        - "amount"
+        - "duration"
+        - "payments"
+        - "status"
+        timeOffset:
+    Calculator:
+      type: "calculator"
+      sources:
+      - "order"
+      parameters:
+        componentName: "Calculator"
+        includeInputColumns: "Yes"
+        calculations:
+        - - "YEAR(\"Date\")"
+          - "Year_Date"
+        - - "MONTH(\"Date\")"
+          - "Month_Date"
+        - - "DAY(\"Date\")"
+          - "Day_Date"
+    Aggregate:
+      type: "aggregate"
+      sources:
+      - "Calculator"
+      parameters:
+        componentName: "Aggregate"
+        groupings:
+        - "Month_Date"
+        aggregations:
+        - - "status"
+          - "Count Distinct"
+        groupingType: "Group By"
+    Rename:
+      type: "rename"
+      sources:
+      - "Aggregate"
+      parameters:
+        componentName: "Rename"
+        columnMapping:
+        - - "count_distinct_status"
+          - "Updated_Status"
+        includeInputColumns: "Yes"
+design:
+  components:
+    order:
+      position:
+        x: 0
+        "y": 0
+      tempMetlId: 1
+    Calculator:
+      position:
+        x: 160
+        "y": 0
+      tempMetlId: 2
+    Aggregate:
+      position:
+        x: 320
+        "y": 0
+      tempMetlId: 3
+    Rename:
+      position:
+        x: 480
+        "y": 0
+      tempMetlId: 4
